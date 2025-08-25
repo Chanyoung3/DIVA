@@ -10,7 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 @RestController
@@ -37,24 +39,34 @@ public class PageController {
             @PathVariable String studyinstanceuid) {
         return viewerService.getImageUrlList(studyinstanceuid);
     }
-    
-    // 검사 이미지 base64로 변환 후 응답
-    /*
-    @GetMapping("/studies/{studyinstanceuid}/series/{seriesinstanceuid}")
-    public ResponseEntity<byte[]> getPatient(
-            @PathVariable Long studyinstanceuid,
-            @PathVariable Long seriesinstanceuid) {
-        try {
-            byte[] dicomBytes = viewerService.getPatientInfo(studyinstanceuid, seriesinstanceuid);
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
-                    .body(dicomBytes);
-        } catch (Exception e) {
-            e.printStackTrace(); // 서버 로그에 에러 기록
+    @GetMapping("/studies/{studyUid}/image")
+    public ResponseEntity<byte[]> getDicomImage(
+            @PathVariable("studyUid") String studyUid,
+            @RequestParam String path,
+            @RequestParam String fname) {
+
+        try {
+            // 파일 경로 생성
+            File dicomFile = new File(path, fname);
+
+            if (!dicomFile.exists()) {
+                System.out.println("파일이 존재하지 않음: " + dicomFile.getAbsolutePath());
+                return ResponseEntity.notFound().build();
+            }
+
+            // DICOM 파일 읽기
+            byte[] dicomBytes = Files.readAllBytes(dicomFile.toPath());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType("application/dicom"));
+            headers.setContentLength(dicomBytes.length);
+
+            return new ResponseEntity<>(dicomBytes, headers, HttpStatus.OK);
+
+        } catch (IOException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-     */
-
 }

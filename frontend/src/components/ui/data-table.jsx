@@ -11,10 +11,6 @@ export function DataTable({ columns, data }) {
         getCoreRowModel: getCoreRowModel(),
     });
 
-    const handleViewer = () =>{
-        useNavigate("/view");
-    }
-
     return (
         <div className="data-table-container">
             <table className="data-table">
@@ -34,7 +30,7 @@ export function DataTable({ columns, data }) {
                 <tbody>
                 {table.getRowModel().rows.map((row) => (
                     <tr key={row.id}
-                        onClick={() => {handleViewer}}>
+                        onClick={() =>  navigate(`/view/${row.original.studykey}`)}>
                         {row.getVisibleCells().map((cell) => (
                             <td key={cell.id}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}

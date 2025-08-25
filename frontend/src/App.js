@@ -4,6 +4,7 @@ import Container from "@mui/material/Container";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Main from './components/js/main';
 import Viewer from './components/js/viewer'
+import Login from './components/js/login'
 
 const queryClient = new QueryClient();
 
@@ -13,9 +14,9 @@ function App() {
             <QueryClientProvider client={queryClient}>
                 <BrowserRouter>
                     <Routes>
-                        {/* 2. Route 문법 수정 */}
+                        <Route path="/login" element={<Login />} />
                         <Route path="/" element={<Main />} />
-                        <Route path="/view" element={<Viewer />} />
+                        <Route path="/view/:studyUid" element={<Viewer />} />
                     </Routes>
                 </BrowserRouter>
             </QueryClientProvider>

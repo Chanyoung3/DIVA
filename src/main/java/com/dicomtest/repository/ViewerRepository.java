@@ -25,8 +25,9 @@ public class ViewerRepository {
         String sql = "SELECT PATH, FNAME FROM IMAGETAB WHERE STUDYKEY = ?";
 
         return jdbcTemplate.query(sql, new Object[]{studyinstanceuid}, (rs, rowNum) -> new Image(
-                rs.getString("PATH"),
-                rs.getString("FNAME")
+                "Z:\\" +rs.getString("PATH"),
+                rs.getString("FNAME"),
+                (long) (rowNum + 1)
         ));
     }
 

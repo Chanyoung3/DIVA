@@ -3,6 +3,7 @@ plugins {
     id 'war'
     id 'org.springframework.boot' version '3.5.4'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.github.node-gradle.node' version '7.1.0'
 }
 
 group = 'com.example'
@@ -42,6 +43,36 @@ dependencies {
 // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.5.4")
 
+}
+
+// Node.js 및 Webpack 설정
+node {
+    // 프로젝트에서 사용할 Node.js 버전. 로컬에 없으면 자동으로 다운로드 및 설치됩니다.
+    version = '22.18.0'
+    npmVersion = '10.9.3'
+    // true -시스템에 설치된 Node.js를 사용
+    download = true
+    // 프론트엔드 소스 코드가 있는 디렉토리
+    workDir = file("${project.projectDir}/frontend")
+    // npm install 명령어를 실행할 디렉토리
+    npmWorkDir = file("${project.projectDir}/frontend")
+}
+
+task webpackBuild(type: Exec) {
+    // 1. 작업 디렉토리를 frontend 폴더로 지정
+    workingDir "${project.projectDir}/frontend"
+
+    // 2. 실행할 명령어 지정 (Windows와 Mac/Linux 호환)
+    commandLine isWindows() ? 'npm.cmd' : 'npm', 'run', 'build'
+
+    // 표준 출력을 Gradle의 표준 출력에 연결합니다. (빌드 과정 로그)
+    standardOutput = System.out
+    // 표준 에러를 Gradle의 표준 에러에 연결합니다. (에러 메시지)
+    errorOutput = System.err
+}
+
+boolean isWindows() {
+    return System.getProperty('os.name').toLowerCase().contains('windows')
 }
 
 tasks.named('test') {
