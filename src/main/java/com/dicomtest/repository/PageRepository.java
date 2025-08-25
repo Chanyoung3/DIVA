@@ -15,7 +15,7 @@ public class PageRepository {
     }
 
     public List<Study> findAll() {
-        String sql = "SELECT PID, STUDYDESC, BODYPART, SERIESCNT, IMAGECNT, MODALITY, STUDYDATE FROM STUDYTAB\n";
+        String sql = "SELECT PID, STUDYDESC, BODYPART, SERIESCNT, IMAGECNT, MODALITY, STUDYDATE, STUDYKEY FROM STUDYTAB\n";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> new Study(
                 rs.getString("PID"),
@@ -24,7 +24,8 @@ public class PageRepository {
                 rs.getLong("SERIESCNT"),
                 rs.getLong("IMAGECNT"),
                 rs.getString("MODALITY"),
-                rs.getString("STUDYDATE")
+                rs.getString("STUDYDATE"),
+                rs.getString("STUDYKEY")
         ));
     }
 }

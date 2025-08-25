@@ -1,11 +1,10 @@
 import React from "react";
-import {
-    flexRender,
-    getCoreRowModel,
-    useReactTable,
-} from "@tanstack/react-table";
+import { useNavigate } from "react-router-dom";
+import {flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
 
 export function DataTable({ columns, data }) {
+    const navigate = useNavigate();
+
     const table = useReactTable({
         data,
         columns,
@@ -30,7 +29,8 @@ export function DataTable({ columns, data }) {
                 </thead>
                 <tbody>
                 {table.getRowModel().rows.map((row) => (
-                    <tr key={row.id}>
+                    <tr key={row.id}
+                        onClick={() =>  navigate(`/view/${row.original.studykey}`)}>
                         {row.getVisibleCells().map((cell) => (
                             <td key={cell.id}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}

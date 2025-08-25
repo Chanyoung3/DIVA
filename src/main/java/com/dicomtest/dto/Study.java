@@ -19,5 +19,5 @@ public class Study {
     private Long imagecnt; // 이미지 수
     private String modality; // 장비
     private String studydate; // 검사 날
-
+    private String studykey;
 }

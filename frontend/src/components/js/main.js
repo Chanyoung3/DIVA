@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { DataTable } from "./ui/data-table"; // 상대경로로 조정하세요
-import "./css/main.css";
+import { DataTable } from "../ui/data-table";
+import "../css/main.css";
 
 // 컬럼 정의 (타입 없이)
 const columns = [
@@ -38,7 +38,7 @@ function Main() {
     const [seriesList, setSeriesList] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:8080/api/all")
+        fetch("http://localhost:8080/api/v1/studies")
             .then((res) => res.json())
             .then((data) => {
                 setSeriesList(data);
@@ -49,7 +49,7 @@ function Main() {
     return (
         <div className="container mx-auto py-10">
             <h2 className="text-2xl font-bold mb-4">시리즈 목록</h2>
-            <DataTable columns={columns} data={seriesList} />
+            <DataTable columns={columns} data={seriesList}/>
         </div>
     );
 }
