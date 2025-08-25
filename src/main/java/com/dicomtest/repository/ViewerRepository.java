@@ -22,12 +22,13 @@ public class ViewerRepository {
     }
 
     public List<Image> getImageList(String studyinstanceuid) {
-        String sql = "SELECT PATH, FNAME FROM IMAGETAB WHERE STUDYKEY = ?";
+        String sql = "SELECT PATH, FNAME, SERIESKEY, IMAGEKEY FROM IMAGETAB WHERE STUDYKEY = ?";
 
         return jdbcTemplate.query(sql, new Object[]{studyinstanceuid}, (rs, rowNum) -> new Image(
                 "Z:\\" +rs.getString("PATH"),
                 rs.getString("FNAME"),
-                (long) (rowNum + 1)
+                rs.getLong("SERIESKEY"),
+                rs.getLong("IMAGEKEY")
         ));
     }
 
