@@ -10,7 +10,7 @@ const queryClient = new QueryClient();
 
 function App() {
     return (
-        <Container maxWidth="xl">
+        <Container maxWidth={false}>
             <QueryClientProvider client={queryClient}>
                 <BrowserRouter>
                     <Routes>

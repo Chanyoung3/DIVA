@@ -14,4 +14,8 @@ public class Image {
     private String fname;
     private Long serieskey;
     private Long imagekey;
+    private String pid;
+    private String pname;
+    private String studydate;
+    private String studytime;
 }

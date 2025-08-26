@@ -5,6 +5,10 @@ import { init as dicomImageLoaderInit } from "@cornerstonejs/dicom-image-loader"
 import * as csTools3d from "@cornerstonejs/tools";
 import { StackScrollTool, init as toolsInit, ToolGroupManager, WindowLevelTool } from "@cornerstonejs/tools";
 import * as toolsEnums from "@cornerstonejs/tools/enums";
+import "../css/viewer.css";
+import "./header";
+import Header from "./header";
+import Sidebar from "./sidebar";
 
 function Viewer() {
     const { studyUid } = useParams();
@@ -64,8 +68,9 @@ function Viewer() {
             overlayDiv.style.backgroundColor = "rgba(0,0,0,0.3)";
             overlayDiv.style.padding = "2px 5px";
             overlayDiv.style.borderRadius = "4px";
-            overlayDiv.style.fontSize = "20px";
+            overlayDiv.style.fontSize = "100%";
             overlayDiv.style.pointerEvents = "none";
+            overlayDiv.style.backgroundColor = "transparent";
             viewport.element.appendChild(overlayDiv);
         }
         overlayDiv.innerText = text;
@@ -120,14 +125,32 @@ function Viewer() {
                 });
             }
 
+            setInterval(() => {
+                const index = viewportRef.current.getCurrentImageIdIndex();
+                setStack(prev => {
+                    if (index !== prev.currentIndex) {
+                        return { ...prev, currentIndex: index };
+                    }
+                    return prev; // 바뀐게 없으면 그대로
+                });
+            }, 10);
+
             // 초기 overlay 설정
             const currentImage = data.data[stack.currentIndex];
             if (currentImage) {
-                setViewportOverlay(viewport, `Series: ${currentImage.serieskey}\nImage: ${currentImage.imagekey}`);
+                setViewportOverlay(viewport, `${currentImage.pid}\n${currentImage.pname}\nSeries: ${currentImage.serieskey}\nImage: ${currentImage.imagekey}\nStudyDate: ${currentImage.studydate}\nStudyTime: ${currentImage.studytime}\n`);
             }
-            viewport.render();
-        });
 
+            viewport.setDisplayArea({
+                imageArea: [1,1],         // 뷰포트에 맞춰 최대 영역
+                imageCanvasPoint: {       // 이미지 중앙 기준
+                    imagePoint: [0.5,0.5],
+                    canvasPoint: [0.5,0.5]
+                }
+            });
+            viewport.render();
+
+        });
     }, [cornerstoneReady, stack.imageIds, data]);
 
     // 4️⃣ stack.currentIndex 변경 시 overlay 갱신
@@ -137,18 +160,39 @@ function Viewer() {
 
         const currentImage = data.data[stack.currentIndex];
         if (currentImage) {
-            setViewportOverlay(viewport, `Series: ${currentImage.serieskey}\nImage: ${currentImage.imagekey}`);
+            setViewportOverlay(viewport, `${currentImage.pid}\n${currentImage.pname}\nSeries: ${currentImage.serieskey}\nImage: ${currentImage.imagekey}\nStudyDate: ${currentImage.studydate}\nStudyTime: ${currentImage.studytime}\n`);
         }
     }, [stack.currentIndex, data]);
 
+    useEffect(() => {
+        const applyFitImage = () => {
+            const viewport = viewportRef.current;
+            if (!viewport) return;
+            viewport.setDisplayArea({
+                imageArea: [1, 1],
+                imageCanvasPoint: {
+                    imagePoint: [0.5, 0.5],
+                    canvasPoint: [0.5, 0.5],
+                },
+            });
+            viewport.render();
+        };
+
+        window.addEventListener("resize", applyFitImage);
+        applyFitImage(); // ✅ 최초 한 번 실행
+
+        return () => {
+            window.removeEventListener("resize", applyFitImage);
+        };
+    }, []);
+
     return (
-        <div>
-            <h1>Study {studyUid}</h1>
-            <div
-                ref={elementRef}
-                style={{ width: 1600, height: 900, background: "black", position: "relative" }}
-            />
+        <div className="viewerpage">
+            <Header />
+            <Sidebar />
+            <div className="viewimage" ref={elementRef} />
         </div>
+
     );
 }
 
