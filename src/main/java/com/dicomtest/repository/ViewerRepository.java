@@ -22,13 +22,36 @@ public class ViewerRepository {
     }
 
     public List<Image> getImageList(String studyinstanceuid) {
-        String sql = "SELECT PATH, FNAME FROM IMAGETAB WHERE STUDYKEY = ?";
+        String sql = "SELECT i.PATH, i.FNAME, i.SERIESKEY, i.IMAGEKEY,s.PID, s.STUDYDATE , S.PNAME , s.STUDYTIME FROM IMAGETAB i JOIN STUDYTAB s ON i.STUDYKEY = s.STUDYKEY WHERE i.STUDYKEY = ?\n";
 
-        return jdbcTemplate.query(sql, new Object[]{studyinstanceuid}, (rs, rowNum) -> new Image(
-                "Z:\\" +rs.getString("PATH"),
-                rs.getString("FNAME"),
-                (long) (rowNum + 1)
-        ));
+        return jdbcTemplate.query(sql, new Object[]{studyinstanceuid}, (rs, rowNum) -> {
+            // STUDYDATE 포맷 YYYY/MM/DD
+            String studyDate = rs.getString("STUDYDATE");
+            if (studyDate != null && studyDate.length() == 8) {
+                studyDate = studyDate.substring(0,4) + "/" +
+                        studyDate.substring(4,6) + "/" +
+                        studyDate.substring(6,8);
+            }
+
+            // STUDYTIME 포맷 HH:MM:SS
+            String studyTime = rs.getString("STUDYTIME");
+            if (studyTime != null && studyTime.length() >= 6) {
+                studyTime = studyTime.substring(0,2) + ":" +
+                        studyTime.substring(2,4) + ":" +
+                        studyTime.substring(4,6);
+            }
+
+            return new Image(
+                    "Z:\\" + rs.getString("PATH"),
+                    rs.getString("FNAME"),
+                    rs.getLong("SERIESKEY"),
+                    rs.getLong("IMAGEKEY"),
+                    rs.getString("PID"),
+                    rs.getString("PNAME"),
+                    studyDate,
+                    studyTime
+            );
+        });
     }
 
     /*

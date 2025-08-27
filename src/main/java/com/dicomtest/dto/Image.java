@@ -12,5 +12,10 @@ import lombok.Setter;
 public class Image {
     private String path;
     private String fname;
-    private Long id;
+    private Long serieskey;
+    private Long imagekey;
+    private String pid;
+    private String pname;
+    private String studydate;
+    private String studytime;
 }

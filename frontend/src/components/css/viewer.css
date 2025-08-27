@@ -1,0 +1,29 @@
+.viewerpage {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    background: #404040;
+    flex-direction: column; /* Header 위쪽 고정 */
+}
+
+.maincontent {
+    flex: 1;                  /* 남은 공간 채움 */
+    display: flex;
+    flex-direction: row;      /* 좌측 Sidebar, 우측 이미지 */
+}
+
+.sidebar {
+    width: 100%;        /* 원하는 고정 너비 */
+}
+
+.viewimage {
+    flex: 1;                  /* 남은 공간을 꽉 채움 */
+    background: black;
+    position: relative;
+    border-width: 3px;
+    border-style: solid;
+    border-color: #557531;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    margin-right: 20px;
+}
