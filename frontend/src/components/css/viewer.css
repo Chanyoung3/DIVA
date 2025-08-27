@@ -2,7 +2,7 @@
     width: 100%;
     height: 100vh;
     display: flex;
-    background: #636363;
+    background: #404040;
     flex-direction: column; /* Header 위쪽 고정 */
 }
 
@@ -22,7 +22,7 @@
     position: relative;
     border-width: 3px;
     border-style: solid;
-    border-color: #3b82f6;
+    border-color: #557531;
     margin-left: 20px;
     margin-bottom: 20px;
     margin-right: 20px;

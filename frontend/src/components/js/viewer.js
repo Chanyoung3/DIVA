@@ -13,6 +13,7 @@ import Sidebar from "./sidebar";
 function Viewer() {
     const { studyUid } = useParams();
     const [data, setData] = useState(null);
+    const [toolGroup, setToolGroup] = useState(null);
     const [stack, setStack] = useState({ imageIds: [], currentIndex: 0 });
     const [cornerstoneReady, setCornerstoneReady] = useState(false);
 
@@ -22,6 +23,37 @@ function Viewer() {
     const viewportId = "CT_AXIAL_STACK";
 
     const { PanTool, ZoomTool, LengthTool, ProbeTool } = csTools3d;
+
+    // Viewer.js
+    const activateTool = (toolName) => {
+        if (!toolGroup) return;
+
+        // 모든 툴 비활성화
+        [WindowLevelTool.toolName, PanTool.toolName, ZoomTool.toolName, StackScrollTool.toolName].forEach(name => {
+            toolGroup.setToolPassive(name);
+        });
+
+        // Basic 은 그냥 전부 비활성화된 상태 유지
+        if (toolName === "Basic") return;
+
+        // 선택한 툴만 활성화
+        if (toolName === "Zoom") {
+            toolGroup.setToolActive(ZoomTool.toolName, {
+                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+            });
+
+        } else if (toolName === "Move") {
+            toolGroup.setToolActive(PanTool.toolName, {
+                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+            });
+
+        } else if (toolName === "WindowLevel") {
+            toolGroup.setToolActive(WindowLevelTool.toolName, {
+                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+            });
+        }
+    };
+
 
     // 1️⃣ Cornerstone 초기화
     useEffect(() => {
@@ -104,19 +136,9 @@ function Viewer() {
 
                 ctToolGroup.addViewport(viewportId, renderingEngine.id);
 
-                // 툴 활성화
-                ctToolGroup.setToolActive(WindowLevelTool.toolName, {
-                    bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
-                });
-                ctToolGroup.setToolActive(PanTool.toolName, {
-                    bindings: [{
-                        mouseButton: toolsEnums.MouseBindings.Primary,
-                        modifierKey: toolsEnums.KeyboardBindings.Ctrl,
-                    }],
-                });
-                ctToolGroup.setToolActive(ZoomTool.toolName, {
-                    bindings: [{ mouseButton: toolsEnums.MouseBindings.Secondary }],
-                });
+                ctToolGroup.setToolPassive(WindowLevelTool.toolName);
+                ctToolGroup.setToolPassive(PanTool.toolName);
+                ctToolGroup.setToolPassive(ZoomTool.toolName);
                 ctToolGroup.setToolActive(StackScrollTool.toolName, {
                     bindings: [
                         { mouseButton: toolsEnums.MouseBindings.Primary },
@@ -124,6 +146,7 @@ function Viewer() {
                     ],
                 });
             }
+            setToolGroup(ctToolGroup);
 
             setInterval(() => {
                 const index = viewportRef.current.getCurrentImageIdIndex();
@@ -131,7 +154,7 @@ function Viewer() {
                     if (index !== prev.currentIndex) {
                         return { ...prev, currentIndex: index };
                     }
-                    return prev; // 바뀐게 없으면 그대로
+                    return prev;
                 });
             }, 10);
 
@@ -189,7 +212,7 @@ function Viewer() {
     return (
         <div className="viewerpage">
             <Header />
-            <Sidebar />
+            <Sidebar onActivateTool={activateTool} />
             <div className="viewimage" ref={elementRef} />
         </div>
 

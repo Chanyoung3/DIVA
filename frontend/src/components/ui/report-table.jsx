@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import {flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
 
-export function DataTable({ columns, data }) {
+export function ReportTable({ columns, data }) {
     const navigate = useNavigate();
 
     const table = useReactTable({

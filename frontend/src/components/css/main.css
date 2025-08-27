@@ -1,25 +1,74 @@
 /* main.css */
+.container{
+    width: 100%;
+    height: 100vh;
+    background: #404040;
+    display: flex;           /* 부모를 flex로 */
+    flex-direction: column;
+}
+
+.content {
+    display: flex;           /* 좌우 배치 */
+    gap: 20px;               /* 테이블 사이 간격 */
+    flex: 1;                 /* 남은 공간 채우기 */
+    padding: 20px;
+    flex-direction: column; /* 세로로 쌓음 */
+}
+
+.card {
+    background-color: #2e2e2e;  /* 연한 배경 */
+    border-radius: 12px;        /* 둥근 모서리 */
+    padding: 16px;              /* 내부 여백 */
+}
+
+.tables {
+    display: flex;
+    gap: 20px;
+}
+
+.recordsec {
+    flex: 1; /* 왼쪽 영역 */
+}
 
 .data-table-container {
-    max-width: 1200px;
-    margin: 0 auto; /* 중앙 정렬 */
+    flex: 2; /* 오른쪽 영역 */
+}
+
+.report-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;  /* 남은 영역 차지 */
+    padding: 10px;
+    color: white;
+}
+
+.report {
+    width: 100%;
+    flex: 1;
+    border-radius: 10px;
+    background-color: #f3f4f6;
+    resize: none;
+}
+
+.report-submit {
+    width: 100px;
+    margin-top: 10px;
 }
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: #f9fafb; /* 전체 배경 연한 회색 */
 }
 
 .data-table thead {
-    background-color: #3b82f6; /* 파란색 헤더 */
+    background-color: #557531;
     color: white;
 }
 
 .data-table th,
 .data-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    border: 3px solid  #2e2e2e;
+    padding: 4px;
     text-align: left;
 }
 
@@ -32,5 +81,5 @@
 }
 
 .data-table tbody tr:hover {
-    background-color: #e0e7ff; /* 마우스 오버시 연한 파란색 */
+    background-color: #DFE5CB;
 }
