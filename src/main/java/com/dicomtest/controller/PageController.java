@@ -34,7 +34,7 @@ public class PageController {
         return pageService.getAllPatients();
     }
 
-    // 검사 이미지 경로 가져오
+    // 검사 이미지 경로 가져오기
     @GetMapping("/studies/{studyinstanceuid}")
     public DicomResponseDto getImageUrl(
             @PathVariable String studyinstanceuid) {
