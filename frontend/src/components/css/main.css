@@ -83,3 +83,15 @@
 .data-table tbody tr:hover {
     background-color: #DFE5CB;
 }
+
+.pidtext {
+    color: white;
+    font-weight: bold;
+    margin-left: 3px;
+}
+
+.totalstudytext {
+    color: white;
+    font-weight: bold;
+    margin-left: 3px;
+}

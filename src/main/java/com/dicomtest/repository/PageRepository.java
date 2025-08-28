@@ -14,18 +14,63 @@ public class PageRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Study> findAll() {
-        String sql = "SELECT PID, STUDYDESC, BODYPART, SERIESCNT, IMAGECNT, MODALITY, STUDYDATE, STUDYKEY FROM STUDYTAB\n";
+    public Long findTotalCnt(){
+        String sql = "SELECT count(*) TOTAL FROM STUDYTAB";
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Study(
-                rs.getString("PID"),
-                rs.getString("STUDYDESC"),
-                rs.getString("BODYPART"),
-                rs.getLong("SERIESCNT"),
-                rs.getLong("IMAGECNT"),
-                rs.getString("MODALITY"),
-                rs.getString("STUDYDATE"),
-                rs.getString("STUDYKEY")
-        ));
+        return jdbcTemplate.queryForObject(sql, Long.class);
+    }
+
+    public List<Study> findAll() {
+        String sql = "SELECT PID, STUDYDESC, BODYPART, SERIESCNT, IMAGECNT, MODALITY, STUDYDATE, STUDYKEY FROM STUDYTAB";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            String studyDate = rs.getString("STUDYDATE");
+            if (studyDate != null && studyDate.length() == 8) {
+                studyDate = studyDate.substring(0, 4) + "/" +
+                        studyDate.substring(4, 6) + "/" +
+                        studyDate.substring(6, 8);
+            }
+
+            return new Study(
+                    rs.getString("PID"),
+                    rs.getString("STUDYDESC"),
+                    rs.getString("BODYPART"),
+                    rs.getLong("SERIESCNT"),
+                    rs.getLong("IMAGECNT"),
+                    rs.getString("MODALITY"),
+                    studyDate,
+                    rs.getString("STUDYKEY")
+            );
+        });
+    }
+
+    public Long getRecordCnt(String studyUid) {
+        String sql = "SELECT COUNT(*) CNT FROM STUDYTAB WHERE PID = ?";
+
+        return  jdbcTemplate.queryForObject(sql, Long.class, studyUid);
+    }
+
+    public List<Study> getRecordList(String studyUid) {
+        String sql = "SELECT PID, STUDYDESC, BODYPART, SERIESCNT, IMAGECNT, MODALITY, STUDYDATE, STUDYKEY " +
+                "FROM STUDYTAB WHERE PID = ? ORDER BY STUDYDATE DESC";
+
+        return jdbcTemplate.query(sql, new Object[]{studyUid}, (rs, rowNum) -> {
+            String studyDate = rs.getString("STUDYDATE");
+            if (studyDate != null && studyDate.length() == 8) {
+                studyDate = studyDate.substring(0, 4) + "/" +
+                        studyDate.substring(4, 6) + "/" +
+                        studyDate.substring(6, 8);
+            }
+            return new Study(
+                    rs.getString("PID"),
+                    rs.getString("STUDYDESC"),
+                    rs.getString("BODYPART"),
+                    rs.getLong("SERIESCNT"),
+                    rs.getLong("IMAGECNT"),
+                    rs.getString("MODALITY"),
+                    studyDate,
+                    rs.getString("STUDYKEY")
+            );
+        });
     }
 }

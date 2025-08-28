@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import {flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table";
 
-export function DataTable({ columns, data }) {
+export function DataTable({ columns, data, cnt, onRecordSearch }) {
     const navigate = useNavigate();
 
     const table = useReactTable({
@@ -13,6 +13,7 @@ export function DataTable({ columns, data }) {
 
     return (
         <div className="data-table-container">
+            <text className="totalstudytext">총 검사 수 : {cnt}</text>
             <table className="data-table">
                 <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -30,6 +31,7 @@ export function DataTable({ columns, data }) {
                 <tbody>
                 {table.getRowModel().rows.map((row) => (
                     <tr key={row.id}
+                        onClick={() => onRecordSearch(row.original.pid)}
                         onDoubleClick={() =>  navigate(`/view/${row.original.studykey}`)}>
                         {row.getVisibleCells().map((cell) => (
                             <td key={cell.id}>

@@ -13,6 +13,7 @@ export function ReportTable({ columns, data }) {
 
     return (
         <div className="data-table-container">
+            <text className="pidtext">환자 ID : {data[0]?.pid || ""}</text>
             <table className="data-table">
                 <thead>
                 {table.getHeaderGroups().map((headerGroup) => (

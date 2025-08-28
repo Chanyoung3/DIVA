@@ -1,5 +1,6 @@
 package com.dicomtest.controller;
 
+import com.dicomtest.dto.DicomStudyResponseDto;
 import com.dicomtest.dto.DicomResponseDto;
 import com.dicomtest.dto.Study;
 import com.dicomtest.service.PageService;
@@ -29,7 +30,7 @@ public class PageController {
 
     // STUDYTAB의 검사 리스트
     @GetMapping("/studies")
-    public List<Study> getAllPatients() {
+    public DicomStudyResponseDto getAllPatients() {
         return pageService.getAllPatients();
     }
 
@@ -40,6 +41,7 @@ public class PageController {
         return viewerService.getImageUrlList(studyinstanceuid);
     }
 
+    // 뷰어에서 이미지 불러오기
     @GetMapping("/studies/{studyUid}/image")
     public ResponseEntity<byte[]> getDicomImage(
             @PathVariable("studyUid") String studyUid,
@@ -68,5 +70,12 @@ public class PageController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    // 리스트에서 클릭시 과거 검사 이력 불러오기
+    @GetMapping("/studies/{studyPid}/record")
+    public DicomStudyResponseDto getDicomRecord(
+            @PathVariable String studyPid){
+        return pageService.getRecord(studyPid);
     }
 }

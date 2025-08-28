@@ -53,16 +53,4 @@ public class ViewerRepository {
             );
         });
     }
-
-    /*
-    public String getImagePath(Long studyInstanceUid, Long seriesInstanceUid) {
-        String sql = "SELECT PATH FROM IMAGETAB WHERE STUDYKEY = ? AND SERIESKEY = ?";
-
-        return jdbcTemplate.queryForObject(
-                sql,
-                new Object[]{studyInstanceUid, seriesInstanceUid},
-                String.class
-        );
-    }
-     */
 }

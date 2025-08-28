@@ -38,42 +38,50 @@ const columns = [
 
 const columns2  = [
     {
-        accessorKey: "ed_studyequipment",
+        accessorKey: "modality",
         header: "검사장비",
     },
     {
-        accessorKey: "ed_studyexplanation",
+        accessorKey: "studydesc",
         header: "검사설명",
     },
     {
-        accessorKey: "ed_studydate",
+        accessorKey: "studydate",
         header: "검사일시",
     },
     {
-        accessorKey: "ed_seriesnum",
+        accessorKey: "seriescnt",
         header: "시리즈",
     },
     {
-        accessorKey: "ed_imagecnt",
+        accessorKey: "imagecnt",
         header: "이미지",
     },
 ];
 
-const seriesList2 = [
-
-]
 function Main() {
-    const [seriesList, setSeriesList] = useState([]);
+    const [totalCnt, setTotalCnt] = useState("");
+    const [studyList, setStudyList] = useState([]);
+    const [study2List, setStudy2List] = useState([]);
 
     useEffect(() => {
         fetch("http://localhost:8080/api/v1/studies")
             .then((res) => res.json())
             .then((data) => {
-                setSeriesList(data);
-                console.log("data: " + data);
+                setTotalCnt(data.recordCnt);
+                setStudyList(data.data);
             })
             .catch((err) => console.error("데이터 가져오기 실패:", err));
     }, []);
+
+    const handleRecordSearch = (pid) => {
+        fetch(`http://localhost:8080/api/v1/studies/${pid}/record`)
+            .then((res) => res.json())
+            .then((data) => {
+                setStudy2List(data.data);
+            })
+            .catch((err) => console.error("데이터 가져오기 실패:", err));
+    };
 
     return (
         <div className="container">
@@ -82,11 +90,11 @@ function Main() {
             <div className="content">
                 <div className="tables">
                     <div className="recordsec card">
-                        <ReportTable columns={columns2} data={seriesList2} />
+                        <ReportTable columns={columns2} data={study2List} />
                     </div>
 
                     <div className="data-table-container card">
-                        <DataTable columns={columns} data={seriesList} />
+                        <DataTable columns={columns} data={studyList} cnt={totalCnt} onRecordSearch={handleRecordSearch}/>
                     </div>
                 </div>
 
