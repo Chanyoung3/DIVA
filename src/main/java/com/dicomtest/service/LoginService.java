@@ -11,7 +11,19 @@ public class LoginService {
         this.loginRepository = loginRepository;
     }
 
-    public boolean checkUser(String username,String password){
-        return loginRepository.checkInfo(username, password);
+    public boolean checkUser(String userid, String password){
+        return loginRepository.checkInfo(userid, password);
+    }
+
+    public boolean checkUser(String userid){
+        return loginRepository.checkInfo(userid);
+    }
+
+    public String getUsername(String userid) {
+        return loginRepository.getUsername(userid);
+    }
+
+    public Long getId(String userid) {
+        return loginRepository.getId(userid);
     }
 }

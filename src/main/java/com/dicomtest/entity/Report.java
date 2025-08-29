@@ -11,11 +11,18 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "report")
-public class report {
+@Table(name = "`Report`")
+public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    private Long studykey;
+
+    @Column(columnDefinition = "TEXT")
     private String comment;
 }

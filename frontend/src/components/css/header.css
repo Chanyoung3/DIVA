@@ -1,10 +1,64 @@
-.headname {
-    width: 100%;
-    height: 8%;
-    color: white;
-    text-align: center;
-    background: #404040;
+.header-container {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
+    padding: 10px 20px;
+    background-color: #404040; /* 헤더 배경색 */
+    color: white;
+    position: relative;
+}
+
+.headname {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.profile-container {
+    position: relative;
+}
+
+.login-info {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.profile-button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.profile-button:hover {
+    background-color: #2563eb;
+}
+
+.profile-dropdown {
+    position: absolute;
+    right: 0;
+    top: 40px;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 120px;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-dropdown button {
+    background: none;
+    border: none;
+    padding: 10px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.profile-dropdown button:hover {
+    background-color: #f3f4f6;
 }

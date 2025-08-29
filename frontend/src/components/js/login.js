@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom"; // CSS import
 function Login() {
     const navigate = useNavigate();
     const [form, setForm] = useState({
-        id: "",
+        userid: "",
         password: "",
     });
 
@@ -20,22 +20,32 @@ function Login() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        fetch("http://localhost:8080/login", {
+        fetch(`http://localhost:8080/login?userid=${form.userid}&password=${form.password}`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                id: form.id,
-                password: form.password,
-            }),
+            credentials: "include",
         })
-            .then((res) => res.json())
-            .then((data) => {
-                if (!data.success) {
-                    alert("아이디나 패스워드가 일치하지 않습니다.");
-                } else {
-                    navigate("/");
+            .then((res) => res.text())   // 먼저 텍스트로 받기
+            .then((text) => {
+                try {
+                    const data = JSON.parse(text);  // JSON 변환 시도
+                    if (data.success) {
+                        navigate("/"); // 로그인 성공
+                    } else {
+                        // 실패 사유에 따라 분기
+                        switch (data.reason) {
+                            case "wrong_password":
+                                alert("비밀번호가 틀립니다.");
+                                break;
+                            case "not_found":
+                                alert("아이디가 존재하지 않습니다.");
+                                break;
+                            default:
+                                alert("로그인에 실패했습니다.");
+                                break;
+                        }
+                    }
+                } catch (err) {
+                    console.error("JSON 파싱 실패, 서버 응답:", text);
                 }
             })
             .catch((err) => {
@@ -43,16 +53,15 @@ function Login() {
             });
     };
 
-
     return (
         <div className="login-container">
             <h1 className="login-title">Login</h1>
             <form onSubmit={handleSubmit} className="login-form">
                 <input
                     type="text"
-                    name="id"
+                    name="userid"
                     placeholder="아이디"
-                    value={form.id}
+                    value={form.userid}
                     onChange={handleChange}
                     className="login-input"
                 />

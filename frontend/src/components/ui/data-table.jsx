@@ -31,7 +31,7 @@ export function DataTable({ columns, data, cnt, onRecordSearch }) {
                 <tbody>
                 {table.getRowModel().rows.map((row) => (
                     <tr key={row.id}
-                        onClick={() => onRecordSearch(row.original.pid)}
+                        onClick={() => onRecordSearch(row.original.pid, row.original.studykey)}
                         onDoubleClick={() =>  navigate(`/view/${row.original.studykey}`)}>
                         {row.getVisibleCells().map((cell) => (
                             <td key={cell.id}>
