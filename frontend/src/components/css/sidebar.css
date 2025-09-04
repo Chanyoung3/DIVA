@@ -11,11 +11,15 @@
 }
 
 .toolsection {
+    position: relative;  /* grid 절대위치를 위해 부모에 relative */
     background: #1D1C1C;
     padding: 10px;
     border-radius: 10px;
+}
+
+.buttonGroup {
     display: flex;
-    gap: 5px;
+    gap: 3px;
 }
 
 .button {
@@ -47,4 +51,48 @@
 
 .button_lg.active {
     background-color: 	#557531;
+}
+
+.gridContainer {
+    position: absolute;  /* 버튼 바로 아래에 grid 띄우기 */
+    top: 100%;           /* buttonGroup 바로 아래 */
+    left: 85%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    z-index: 10;
+    pointer-events: auto; /* grid 클릭 가능하게 */
+    background: rgba(0,0,0,0.5); /* optional */
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.gridRow {
+    display: flex;
+    gap: 5px;
+}
+
+.gridCell {
+    width: 20px;
+    height: 20px;
+    background-color: #ddd;
+    border: 1px solid #999;
+    cursor: pointer;
+}
+
+.gridCell:hover {
+    background-color: #3b82f6;
+}
+
+.gridCell {
+    width: 20px;
+    height: 20px;
+    background-color: #ddd;
+    border: 1px solid #999;
+    cursor: pointer;
+    transition: background-color 0.1s;
+}
+
+.gridCell.active {
+    background-color: #3b82f6;
 }

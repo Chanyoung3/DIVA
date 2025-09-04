@@ -11,6 +11,10 @@ const columns = [
         header: "환자 ID",
     },
     {
+        accessorKey: "pname",
+        header: "환자 이름",
+    },
+    {
         accessorKey: "studydesc",
         header: "검사 설명",
     },
@@ -63,17 +67,51 @@ function Main() {
     const [totalCnt, setTotalCnt] = useState("");
     const [studyList, setStudyList] = useState([]);
     const [study2List, setStudy2List] = useState([]);
+    const [filteredStudyList, setFilteredStudyList] = useState([]);
 
     const [studykey, setStudyKey] = useState(0);
     const [userid, setUserid] = useState(null);
     const [reportText, setReportText] = useState("");
 
+    const [searchType, setSearchType] = useState("name");
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+    const [startDate, setStartDate] = useState(todayStr);
+    const [endDate, setEndDate] = useState(todayStr);
+
+
     useEffect(() => {
         fetch("http://localhost:8080/api/v1/studies")
             .then((res) => res.json())
             .then((data) => {
-                setTotalCnt(data.recordCnt);
                 setStudyList(data.data);
+
+                const formatDate = (dateStr) => {
+                    if (!dateStr) return null;
+                    if (dateStr.includes("-")) return new Date(dateStr);
+                    if (dateStr.length === 8) {
+                        const y = dateStr.slice(0, 4);
+                        const m = dateStr.slice(4, 6);
+                        const d = dateStr.slice(6, 8);
+                        return new Date(`${y}-${m}-${d}`);
+                    }
+                    return new Date(dateStr);
+                };
+
+                const filteredToday = data.data.filter(item => {
+                    const itemDate = formatDate(item.studydate);
+                    const todayDate = formatDate(todayStr.replace(/-/g,""));
+                    return itemDate && itemDate.toDateString() === todayDate.toDateString();
+                });
+
+                setFilteredStudyList(filteredToday);
+                setTotalCnt(filteredToday.length);
             })
             .catch((err) => console.error("데이터 가져오기 실패:", err));
     }, []);
@@ -93,7 +131,6 @@ function Main() {
             .then(res => res.text())  // text로 받기
             .then(text => {
                 setReportText(text);  // 상태에 저장
-                console.log("받은 리포트:", text);
             })
             .catch(err => console.error("리포트 가져오기 실패:", err));
 
@@ -118,27 +155,82 @@ function Main() {
             })
     }
 
+    const handleSearch = () => {
+        const filtered = studyList.filter((item) => {
+
+            const formatDate = (dateStr) => {
+                if (!dateStr) return null;
+                if (dateStr.includes("-")) return new Date(dateStr);
+                if (dateStr.length === 8) {
+                    const y = dateStr.slice(0, 4);
+                    const m = dateStr.slice(4, 6);
+                    const d = dateStr.slice(6, 8);
+                    return new Date(`${y}-${m}-${d}`);
+                }
+                return new Date(dateStr);
+            };
+
+            const itemDate = formatDate(item.studydate);
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            const matchDate = itemDate && itemDate >= start && itemDate <= end;
+
+            if (!searchTerm.trim()) {
+                return matchDate;
+            }
+
+            const matchSearch =
+                searchType === "name"
+                    ? item.pname?.includes(searchTerm)
+                    : item.pid?.toString().includes(searchTerm);
+
+            return matchSearch && matchDate;
+        });
+
+        setFilteredStudyList(filtered);
+        setTotalCnt(filtered.length);
+    };
+
     return (
         <div className="container">
-            <Header setUserid={setUserid} />
+            <div className="option">
+                <Header setUserid={setUserid} />
+                <div className="search-container card">
+                    <div className="title">검색</div>
+                    <div className="search-box">
+                        <div className="search-inputs">
+                            <select value={searchType} onChange={(e) => setSearchType(e.target.value)}>
+                                <option value="name">환자 이름</option>
+                                <option value="id">환자 ID</option>
+                            </select>
+                            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                                onKeyDown={(e) => {if (e.key === "Enter") {handleSearch();}}}/>
+                            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}/>
+                            <span>~</span>
+                            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}/>
+                        </div>
 
-            <div className="content">
-                <div className="tables">
-                    <div className="recordsec card">
-                        <ReportTable columns={columns2} data={study2List} />
+                        <button onClick={handleSearch}>검색</button>
                     </div>
-
-                    <div className="data-table-container card">
-                        <DataTable columns={columns} data={studyList} cnt={totalCnt} onRecordSearch={handleRecordSearch}/>
-                    </div>
-                </div>
-
-                <div className="report-container card">
-                    <h3>리포트</h3>
-                    <textarea className="report" value={reportText} onChange={(e) => setReportText(e.target.value)}></textarea>
-                    <button className="report-submit" onClick={handleReport}>저장</button>
                 </div>
             </div>
+            <div className="tables">
+                    <div className="left-panel card">
+                        <div className="title">검사 이력</div>
+                        <ReportTable columns={columns2} data={study2List} />
+
+                        <div className="report-section">
+                            <div className="title">리포트</div>
+                            <textarea className="report" value={reportText} onChange={(e) => setReportText(e.target.value)}/>
+                            <button className="report-submit" onClick={handleReport}>저장</button>
+                        </div>
+                    </div>
+                    <div className="data-table-container card">
+                        <div className="title">전체 리스트</div>
+                        <DataTable columns={columns} data={filteredStudyList} cnt={totalCnt} onRecordSearch={handleRecordSearch}/>
+                    </div>
+                </div>
         </div>
     );
 }

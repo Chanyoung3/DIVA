@@ -1,9 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import { init as coreInit, RenderingEngine } from "@cornerstonejs/core";
 import { init as dicomImageLoaderInit } from "@cornerstonejs/dicom-image-loader";
 import * as csTools3d from "@cornerstonejs/tools";
-import { StackScrollTool, init as toolsInit, ToolGroupManager, WindowLevelTool } from "@cornerstonejs/tools";
+import {
+    StackScrollTool,
+    init as toolsInit,
+    ToolGroupManager,
+    WindowLevelTool,
+    BidirectionalTool
+} from "@cornerstonejs/tools";
 import * as toolsEnums from "@cornerstonejs/tools/enums";
 import "../css/viewer.css";
 import "./header";
@@ -11,6 +17,7 @@ import Header from "./header";
 import Sidebar from "./sidebar";
 
 function Viewer() {
+    const navigate = useNavigate()
     const { studyUid } = useParams();
     const [data, setData] = useState(null);
     const [toolGroup, setToolGroup] = useState(null);
@@ -22,38 +29,39 @@ function Viewer() {
     const viewportRef = useRef(null);
     const viewportId = "CT_AXIAL_STACK";
 
-    const { PanTool, ZoomTool, LengthTool, ProbeTool } = csTools3d;
+    const { PanTool, ZoomTool, WindowLevelTool, LengthTool } = csTools3d;
 
     // Viewer.js
     const activateTool = (toolName) => {
         if (!toolGroup) return;
 
         // 모든 툴 비활성화
-        [WindowLevelTool.toolName, PanTool.toolName, ZoomTool.toolName, StackScrollTool.toolName].forEach(name => {
+        [WindowLevelTool.toolName, PanTool.toolName, ZoomTool.toolName, LengthTool.toolName].forEach(name => {
             toolGroup.setToolPassive(name);
         });
 
         // Basic 은 그냥 전부 비활성화된 상태 유지
         if (toolName === "Basic") return;
-
+        if (toolName === "Home") navigate("/");
         // 선택한 툴만 활성화
         if (toolName === "Zoom") {
             toolGroup.setToolActive(ZoomTool.toolName, {
                 bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
             });
-
         } else if (toolName === "Move") {
             toolGroup.setToolActive(PanTool.toolName, {
                 bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
             });
-
         } else if (toolName === "WindowLevel") {
             toolGroup.setToolActive(WindowLevelTool.toolName, {
                 bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
             });
+        } else if (toolName === "Mark"){
+            toolGroup.setToolActive(LengthTool.toolName, {
+                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+            });
         }
     };
-
 
     // 1️⃣ Cornerstone 초기화
     useEffect(() => {
@@ -120,8 +128,7 @@ function Viewer() {
         renderingEngineRef.current = renderingEngine;
         viewportRef.current = viewport;
 
-        // 툴 등록
-        [PanTool, ZoomTool, LengthTool, ProbeTool, StackScrollTool, WindowLevelTool].forEach(tool => csTools3d.addTool(tool));
+        [PanTool, ZoomTool, LengthTool, StackScrollTool, WindowLevelTool].forEach(tool => csTools3d.addTool(tool));
 
         viewport.setStack(stack.imageIds, stack.currentIndex).then(() => {
             const toolGroupId = "ctToolGroup";
@@ -133,12 +140,14 @@ function Viewer() {
                 ctToolGroup.addTool(ZoomTool.toolName);
                 ctToolGroup.addTool(StackScrollTool.toolName);
                 ctToolGroup.addTool(WindowLevelTool.toolName);
+                ctToolGroup.addTool(LengthTool.toolName);
 
                 ctToolGroup.addViewport(viewportId, renderingEngine.id);
 
                 ctToolGroup.setToolPassive(WindowLevelTool.toolName);
                 ctToolGroup.setToolPassive(PanTool.toolName);
                 ctToolGroup.setToolPassive(ZoomTool.toolName);
+                ctToolGroup.setToolPassive(LengthTool.toolName);
                 ctToolGroup.setToolActive(StackScrollTool.toolName, {
                     bindings: [
                         { mouseButton: toolsEnums.MouseBindings.Primary },
@@ -202,7 +211,7 @@ function Viewer() {
         };
 
         window.addEventListener("resize", applyFitImage);
-        applyFitImage(); // ✅ 최초 한 번 실행
+        applyFitImage();
 
         return () => {
             window.removeEventListener("resize", applyFitImage);
@@ -215,7 +224,6 @@ function Viewer() {
             <Sidebar onActivateTool={activateTool} />
             <div className="viewimage" ref={elementRef} />
         </div>
-
     );
 }
 

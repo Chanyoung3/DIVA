@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { annotation } from "@cornerstonejs/tools";
 import "../css/header.css";
 
 function Header({ setUserid }) {
@@ -32,9 +33,14 @@ function Header({ setUserid }) {
             .catch(err => console.error("로그아웃 실패:", err));
     };
 
+    const handleMain = () => {
+        annotation.state.removeAllAnnotations();
+        navigate("/");
+    }
+
     return (
         <div className="header-container">
-            <div className="headname">Dicom Viewer</div>
+            <div className="headname" onClick={handleMain}>DIVA</div>
 
             <div className="profile-container">
                 <text className="login-info">{username}</text>

@@ -22,7 +22,7 @@ public class PageRepository {
     }
 
     public List<Study> findAll() {
-        String sql = "SELECT PID, STUDYDESC, BODYPART, SERIESCNT, IMAGECNT, MODALITY, STUDYDATE, STUDYKEY FROM STUDYTAB";
+        String sql = "SELECT PID, PNAME, STUDYDESC, BODYPART, SERIESCNT, IMAGECNT, MODALITY, STUDYDATE, STUDYKEY FROM STUDYTAB";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             String studyDate = rs.getString("STUDYDATE");
@@ -34,6 +34,7 @@ public class PageRepository {
 
             return new Study(
                     rs.getString("PID"),
+                    rs.getString("PNAME"),
                     rs.getString("STUDYDESC"),
                     rs.getString("BODYPART"),
                     rs.getLong("SERIESCNT"),
@@ -52,7 +53,7 @@ public class PageRepository {
     }
 
     public List<Study> getRecordList(String studyUid) {
-        String sql = "SELECT PID, STUDYDESC, BODYPART, SERIESCNT, IMAGECNT, MODALITY, STUDYDATE, STUDYKEY " +
+        String sql = "SELECT PID, PNAME, STUDYDESC, BODYPART, SERIESCNT, IMAGECNT, MODALITY, STUDYDATE, STUDYKEY " +
                 "FROM STUDYTAB WHERE PID = ? ORDER BY STUDYDATE DESC";
 
         return jdbcTemplate.query(sql, new Object[]{studyUid}, (rs, rowNum) -> {
@@ -64,6 +65,7 @@ public class PageRepository {
             }
             return new Study(
                     rs.getString("PID"),
+                    rs.getString("PNAME"),
                     rs.getString("STUDYDESC"),
                     rs.getString("BODYPART"),
                     rs.getLong("SERIESCNT"),
