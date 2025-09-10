@@ -3,13 +3,8 @@ import {useNavigate, useParams} from "react-router-dom";
 import { init as coreInit, RenderingEngine } from "@cornerstonejs/core";
 import { init as dicomImageLoaderInit } from "@cornerstonejs/dicom-image-loader";
 import * as csTools3d from "@cornerstonejs/tools";
-import {
-    StackScrollTool,
-    init as toolsInit,
-    ToolGroupManager,
-    WindowLevelTool,
-    BidirectionalTool
-} from "@cornerstonejs/tools";
+import { StackScrollTool, init as toolsInit, ToolGroupManager, WindowLevelTool,
+    ProbeTool, RectangleROITool, EllipticalROITool, EraserTool, AngleTool, LabelTool} from "@cornerstonejs/tools";
 import * as toolsEnums from "@cornerstonejs/tools/enums";
 import "../css/viewer.css";
 import "./header";
@@ -24,19 +19,30 @@ function Viewer() {
     const [stack, setStack] = useState({ imageIds: [], currentIndex: 0 });
     const [cornerstoneReady, setCornerstoneReady] = useState(false);
 
+    const [grid, setGrid] = useState({ rows: 1, cols: 1 });
     const elementRef = useRef(null);
     const renderingEngineRef = useRef(null);
     const viewportRef = useRef(null);
     const viewportId = "CT_AXIAL_STACK";
 
-    const { PanTool, ZoomTool, WindowLevelTool, LengthTool } = csTools3d;
+    const { PanTool, ZoomTool, WindowLevelTool, AngleTool, LengthTool, ProbeTool, RectangleROITool, EllipticalROITool, EraserTool, LabelTool } = csTools3d;
 
     // Viewer.js
-    const activateTool = (toolName) => {
+    const activateTool = (toolName, options = {}) => {
         if (!toolGroup) return;
 
+        if (toolName === "Section") {
+            const { row = 1, col = 1 } = options;
+            console.log("세로 : " + row + " 가로 : " + col);
+            setGrid({ rows: row, cols: col });
+            return;
+        }
+
         // 모든 툴 비활성화
-        [WindowLevelTool.toolName, PanTool.toolName, ZoomTool.toolName, LengthTool.toolName].forEach(name => {
+        [WindowLevelTool.toolName, PanTool.toolName, ZoomTool.toolName,
+            AngleTool.toolName, LengthTool.toolName, ProbeTool.toolName,
+            RectangleROITool.toolName, EllipticalROITool.toolName,
+            EraserTool.toolName, LabelTool.toolName].forEach(name => {
             toolGroup.setToolPassive(name);
         });
 
@@ -56,8 +62,32 @@ function Viewer() {
             toolGroup.setToolActive(WindowLevelTool.toolName, {
                 bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
             });
-        } else if (toolName === "Mark"){
+        } else if (toolName === "Angle"){
+            toolGroup.setToolActive(AngleTool.toolName, {
+                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+            });
+        } else if (toolName === "Length"){
             toolGroup.setToolActive(LengthTool.toolName, {
+                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+            });
+        } else if (toolName === "Probe"){
+            toolGroup.setToolActive(ProbeTool.toolName, {
+                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+            });
+        } else if (toolName === "RectangleROI"){
+            toolGroup.setToolActive(RectangleROITool.toolName, {
+                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+            });
+        } else if (toolName === "EllipticalROI"){
+            toolGroup.setToolActive(EllipticalROITool.toolName, {
+                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+            });
+        } else if (toolName === "Eraser"){
+            toolGroup.setToolActive(EraserTool.toolName, {
+                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+            });
+        } else if (toolName === "Label"){
+            toolGroup.setToolActive(LabelTool.toolName, {
                 bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
             });
         }
@@ -128,7 +158,7 @@ function Viewer() {
         renderingEngineRef.current = renderingEngine;
         viewportRef.current = viewport;
 
-        [PanTool, ZoomTool, LengthTool, StackScrollTool, WindowLevelTool].forEach(tool => csTools3d.addTool(tool));
+        [PanTool, ZoomTool, AngleTool, ProbeTool, RectangleROITool, EllipticalROITool, LengthTool, LabelTool, EraserTool, StackScrollTool, WindowLevelTool].forEach(tool => csTools3d.addTool(tool));
 
         viewport.setStack(stack.imageIds, stack.currentIndex).then(() => {
             const toolGroupId = "ctToolGroup";
@@ -141,6 +171,12 @@ function Viewer() {
                 ctToolGroup.addTool(StackScrollTool.toolName);
                 ctToolGroup.addTool(WindowLevelTool.toolName);
                 ctToolGroup.addTool(LengthTool.toolName);
+                ctToolGroup.addTool(ProbeTool.toolName);
+                ctToolGroup.addTool(RectangleROITool.toolName);
+                ctToolGroup.addTool(EllipticalROITool.toolName);
+                ctToolGroup.addTool(AngleTool.toolName);
+                ctToolGroup.addTool(EraserTool.toolName);
+                ctToolGroup.addTool(LabelTool.toolName);
 
                 ctToolGroup.addViewport(viewportId, renderingEngine.id);
 
@@ -148,9 +184,14 @@ function Viewer() {
                 ctToolGroup.setToolPassive(PanTool.toolName);
                 ctToolGroup.setToolPassive(ZoomTool.toolName);
                 ctToolGroup.setToolPassive(LengthTool.toolName);
+                ctToolGroup.setToolPassive(ProbeTool.toolName);
+                ctToolGroup.setToolPassive(RectangleROITool.toolName);
+                ctToolGroup.setToolPassive(EllipticalROITool.toolName);
+                ctToolGroup.setToolPassive(AngleTool.toolName);
+                ctToolGroup.setToolPassive(EraserTool.toolName);
+                ctToolGroup.setToolPassive(LabelTool.toolName);
                 ctToolGroup.setToolActive(StackScrollTool.toolName, {
                     bindings: [
-                        { mouseButton: toolsEnums.MouseBindings.Primary },
                         { mouseButton: toolsEnums.MouseBindings.Wheel },
                     ],
                 });
@@ -181,7 +222,6 @@ function Viewer() {
                 }
             });
             viewport.render();
-
         });
     }, [cornerstoneReady, stack.imageIds, data]);
 
