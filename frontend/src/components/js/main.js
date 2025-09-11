@@ -138,21 +138,24 @@ function Main() {
 
     const handleReport = () => { // 코멘트 저장
         const comment = document.querySelector(".report").value;
-        fetch(`http://localhost:8080/report?id=${userid}&key=${studykey}&comment=${comment}`,{
-            method: "POST",
-        })
-            .then((res) => res.text())   // 먼저 텍스트로 받기
-            .then((text) => {
-                const data = JSON.parse(text);
-                if(data.success){
-                    alert("성공적으로 저장했습니다.");
-                } else{
-                    alert("저장에 실패했습니다.");
-                }
+        if ( studykey == 0 || userid == null ) alert("잘못된 접근입니다.");
+        else{
+            fetch(`http://localhost:8080/report?id=${userid}&key=${studykey}&comment=${comment}`,{
+                method: "POST",
             })
-            .catch((err) => {
-                console.error("저장 실패:", err);
-            })
+                .then((res) => res.text())   // 먼저 텍스트로 받기
+                .then((text) => {
+                    const data = JSON.parse(text);
+                    if(data.success){
+                        alert("성공적으로 저장했습니다.");
+                    } else{
+                        alert("저장에 실패했습니다.");
+                    }
+                })
+                .catch((err) => {
+                    console.error("저장 실패:", err);
+                })
+        }
     }
 
     const handleSearch = () => {

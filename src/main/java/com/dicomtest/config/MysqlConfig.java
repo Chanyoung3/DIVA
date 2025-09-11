@@ -1,6 +1,7 @@
 package com.dicomtest.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
@@ -39,5 +40,14 @@ public class MysqlConfig {
     @Bean
     public JdbcTemplate mysqlJdbcTemplate(@Qualifier("mysqlDataSource") DataSource ds) {
         return new JdbcTemplate(ds);
+    }
+
+    @Bean
+    public CommandLineRunner initData(@Qualifier("mysqlJdbcTemplate") JdbcTemplate jdbcTemplate) {
+        return args -> {
+            jdbcTemplate.execute(
+                    "INSERT INTO `user` (id, userid, password, username, drank) VALUES (1, 'admin', '1', '관리자', 'admin');"
+            );
+        };
     }
 }
