@@ -25,7 +25,7 @@ function Sidebar({ onActivateTool }) {
         onActivateTool(toolName);
         setActiveTool(toolName);
 
-        if( toolName !== "Mark") setShowMarkTools(false);
+        if( toolName !== "Mark") setShowMarkTools(false); // 주석 툴 도구 닫기
     };
 
     const handletoggle  = (toolName) => {
