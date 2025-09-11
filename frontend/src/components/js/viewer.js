@@ -1,61 +1,51 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { init as coreInit, RenderingEngine } from "@cornerstonejs/core";
+import { useNavigate, useParams } from "react-router-dom";
+import { init as coreInit, RenderingEngine, Enums } from "@cornerstonejs/core";
 import { init as dicomImageLoaderInit } from "@cornerstonejs/dicom-image-loader";
 import * as csTools3d from "@cornerstonejs/tools";
-import { StackScrollTool, init as toolsInit, ToolGroupManager, WindowLevelTool } from "@cornerstonejs/tools";
+import {
+    StackScrollTool,
+    init as toolsInit,
+    ToolGroupManager,
+    WindowLevelTool,
+    ProbeTool,
+    RectangleROITool,
+    EllipticalROITool,
+    EraserTool,
+    AngleTool,
+    LabelTool,
+    LengthTool,
+} from "@cornerstonejs/tools";
 import * as toolsEnums from "@cornerstonejs/tools/enums";
 import "../css/viewer.css";
-import "./header";
 import Header from "./header";
 import Sidebar from "./sidebar";
 
 function Viewer() {
+    const navigate = useNavigate();
     const { studyUid } = useParams();
     const [data, setData] = useState(null);
-    const [toolGroup, setToolGroup] = useState(null);
-    const [stack, setStack] = useState({ imageIds: [], currentIndex: 0 });
     const [cornerstoneReady, setCornerstoneReady] = useState(false);
-
-    const elementRef = useRef(null);
+    const [grid, setGrid] = useState({ rows: 1, cols: 1 });
+    const elementRefs = useRef({});
     const renderingEngineRef = useRef(null);
-    const viewportRef = useRef(null);
-    const viewportId = "CT_AXIAL_STACK";
 
-    const { PanTool, ZoomTool, LengthTool, ProbeTool } = csTools3d;
+    const { STACK_NEW_IMAGE } = Enums.Events;
 
-    // Viewer.js
-    const activateTool = (toolName) => {
-        if (!toolGroup) return;
+    const {
+        PanTool,
+        ZoomTool,
+        WindowLevelTool,
+        AngleTool,
+        LengthTool,
+        ProbeTool,
+        RectangleROITool,
+        EllipticalROITool,
+        EraserTool,
+        LabelTool,
+    } = csTools3d;
 
-        // 모든 툴 비활성화
-        [WindowLevelTool.toolName, PanTool.toolName, ZoomTool.toolName, StackScrollTool.toolName].forEach(name => {
-            toolGroup.setToolPassive(name);
-        });
-
-        // Basic 은 그냥 전부 비활성화된 상태 유지
-        if (toolName === "Basic") return;
-
-        // 선택한 툴만 활성화
-        if (toolName === "Zoom") {
-            toolGroup.setToolActive(ZoomTool.toolName, {
-                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
-            });
-
-        } else if (toolName === "Move") {
-            toolGroup.setToolActive(PanTool.toolName, {
-                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
-            });
-
-        } else if (toolName === "WindowLevel") {
-            toolGroup.setToolActive(WindowLevelTool.toolName, {
-                bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
-            });
-        }
-    };
-
-
-    // 1️⃣ Cornerstone 초기화
+    // Cornerstone 초기화
     useEffect(() => {
         async function initCornerstone() {
             await coreInit();
@@ -66,7 +56,7 @@ function Viewer() {
         initCornerstone();
     }, []);
 
-    // 2️⃣ 이미지 fetch
+    // 이미지 fetch
     useEffect(() => {
         if (!studyUid) return;
         async function fetchImages() {
@@ -74,11 +64,6 @@ function Viewer() {
                 const res = await fetch(`http://localhost:8080/api/v1/studies/${studyUid}`);
                 const data = await res.json();
                 setData(data);
-
-                const ids = data.data.map(
-                    img => `wadouri:http://localhost:8080/api/v1/studies/${studyUid}/image?path=${encodeURIComponent(img.path)}&fname=${encodeURIComponent(img.fname)}`
-                );
-                setStack({ imageIds: ids, currentIndex: 0 });
             } catch (err) {
                 console.error("이미지 fetch 실패:", err);
             }
@@ -86,136 +71,244 @@ function Viewer() {
         fetchImages();
     }, [studyUid]);
 
-    // overlay 표시 함수
+    // Overlay 설정
     const setViewportOverlay = (viewport, text) => {
         if (!viewport) return;
         let overlayDiv = viewport.element.querySelector(".viewportOverlay");
         if (!overlayDiv) {
             overlayDiv = document.createElement("div");
             overlayDiv.className = "viewportOverlay";
-            overlayDiv.style.position = "absolute";
-            overlayDiv.style.top = "5px";
-            overlayDiv.style.left = "5px";
-            overlayDiv.style.color = "yellow";
-            overlayDiv.style.backgroundColor = "rgba(0,0,0,0.3)";
-            overlayDiv.style.padding = "2px 5px";
-            overlayDiv.style.borderRadius = "4px";
-            overlayDiv.style.fontSize = "100%";
-            overlayDiv.style.pointerEvents = "none";
-            overlayDiv.style.backgroundColor = "transparent";
+            Object.assign(overlayDiv.style, {
+                position: "absolute",
+                top: "5px",
+                left: "5px",
+                color: "yellow",
+                padding: "2px 5px",
+                borderRadius: "4px",
+                fontSize: "100%",
+                pointerEvents: "none",
+                backgroundColor: "transparent",
+            });
             viewport.element.appendChild(overlayDiv);
         }
         overlayDiv.innerText = text;
     };
 
-    // 3️⃣ RenderingEngine + Viewport + ToolGroup 설정
+    // 툴 활성화
+    const activateTool = (toolName, options = {}) => {
+        const toolGroups = ToolGroupManager.getAllToolGroups();
+        if (!toolGroups.length) return;
+
+        toolGroups.forEach((tg) => {
+            [
+                WindowLevelTool,
+                PanTool,
+                ZoomTool,
+                AngleTool,
+                LengthTool,
+                ProbeTool,
+                RectangleROITool,
+                EllipticalROITool,
+                EraserTool,
+                LabelTool,
+            ].forEach((t) => tg.setToolPassive(t.toolName));
+        });
+
+        if (toolName === "Section" && options.row && options.col) {
+            setGrid({ rows: options.row, cols: options.col });
+            return;
+        }
+
+        if (toolName === "Home") navigate("/");
+
+        toolGroups.forEach((tg) => {
+            let tool;
+            switch (toolName) {
+                case "Zoom":
+                    tool = ZoomTool; break;
+                case "Move":
+                    tool = PanTool; break;
+                case "WindowLevel":
+                    tool = WindowLevelTool; break;
+                case "Angle":
+                    tool = AngleTool; break;
+                case "Length":
+                    tool = LengthTool; break;
+                case "Probe":
+                    tool = ProbeTool; break;
+                case "RectangleROI":
+                    tool = RectangleROITool; break;
+                case "EllipticalROI":
+                    tool = EllipticalROITool; break;
+                case "Eraser":
+                    tool = EraserTool; break;
+                case "Label":
+                    tool = LabelTool; break;
+                default:
+                    tool = null;
+            }
+            if (tool) {
+                tg.setToolActive(tool.toolName, {
+                    bindings: [{ mouseButton: toolsEnums.MouseBindings.Primary }],
+                });
+            }
+        });
+    };
+
+    // RenderingEngine + Viewport 생성
     useEffect(() => {
-        if (!cornerstoneReady || !stack.imageIds.length || !elementRef.current || !data) return;
-        if (renderingEngineRef.current) return;
+        if (!cornerstoneReady || !data) return;
 
+        if (renderingEngineRef.current) renderingEngineRef.current.disableElement();
         const renderingEngine = new RenderingEngine("engine");
-        renderingEngine.enableElement({ viewportId, element: elementRef.current, type: "stack" });
-        const viewport = renderingEngine.getViewport(viewportId);
-
         renderingEngineRef.current = renderingEngine;
-        viewportRef.current = viewport;
 
-        // 툴 등록
-        [PanTool, ZoomTool, LengthTool, ProbeTool, StackScrollTool, WindowLevelTool].forEach(tool => csTools3d.addTool(tool));
+        [
+            PanTool,
+            ZoomTool,
+            AngleTool,
+            ProbeTool,
+            RectangleROITool,
+            EllipticalROITool,
+            LengthTool,
+            LabelTool,
+            EraserTool,
+            StackScrollTool,
+            WindowLevelTool,
+        ].forEach((tool) => csTools3d.addTool(tool));
 
-        viewport.setStack(stack.imageIds, stack.currentIndex).then(() => {
-            const toolGroupId = "ctToolGroup";
-            let ctToolGroup = ToolGroupManager.getToolGroup(toolGroupId);
+        const seriesMap = {};
+        data.data.forEach((img) => {
+            if (!seriesMap[img.serieskey]) seriesMap[img.serieskey] = [];
+            seriesMap[img.serieskey].push(img);
+        });
+        const seriesList = Object.values(seriesMap);
 
-            if (!ctToolGroup) {
-                ctToolGroup = ToolGroupManager.createToolGroup(toolGroupId);
-                ctToolGroup.addTool(PanTool.toolName);
-                ctToolGroup.addTool(ZoomTool.toolName);
-                ctToolGroup.addTool(StackScrollTool.toolName);
-                ctToolGroup.addTool(WindowLevelTool.toolName);
+        const cleanups = [];
 
-                ctToolGroup.addViewport(viewportId, renderingEngine.id);
+        Object.entries(elementRefs.current).forEach(([id, element], idx) => {
+            const series = seriesList[idx];
+            if (!series) return;
 
-                ctToolGroup.setToolPassive(WindowLevelTool.toolName);
-                ctToolGroup.setToolPassive(PanTool.toolName);
-                ctToolGroup.setToolPassive(ZoomTool.toolName);
-                ctToolGroup.setToolActive(StackScrollTool.toolName, {
-                    bindings: [
-                        { mouseButton: toolsEnums.MouseBindings.Primary },
-                        { mouseButton: toolsEnums.MouseBindings.Wheel },
-                    ],
+            renderingEngine.enableElement({ viewportId: id, element, type: "stack" });
+            const viewport = renderingEngine.getViewport(id);
+
+            // ToolGroup 생성
+            const tgId = `toolGroup-${id}`;
+            let tg = ToolGroupManager.getToolGroup(tgId);
+            if (!tg) {
+                tg = ToolGroupManager.createToolGroup(tgId);
+                tg.addViewport(id, renderingEngine.id);
+                tg.addTool(PanTool.toolName);
+                tg.addTool(ZoomTool.toolName);
+                tg.addTool(StackScrollTool.toolName);
+                tg.addTool(WindowLevelTool.toolName);
+                tg.addTool(LengthTool.toolName);
+                tg.addTool(ProbeTool.toolName);
+                tg.addTool(RectangleROITool.toolName);
+                tg.addTool(EllipticalROITool.toolName);
+                tg.addTool(AngleTool.toolName);
+                tg.addTool(EraserTool.toolName);
+                tg.addTool(LabelTool.toolName);
+                tg.setToolActive(StackScrollTool.toolName, {
+                    bindings: [{ mouseButton: toolsEnums.MouseBindings.Wheel }],
                 });
             }
-            setToolGroup(ctToolGroup);
 
-            setInterval(() => {
-                const index = viewportRef.current.getCurrentImageIdIndex();
-                setStack(prev => {
-                    if (index !== prev.currentIndex) {
-                        return { ...prev, currentIndex: index };
-                    }
-                    return prev;
+            const imageIds = series.map(
+                (img) =>
+                    `wadouri:http://localhost:8080/api/v1/studies/${studyUid}/image?path=${encodeURIComponent(
+                        img.path
+                    )}&fname=${encodeURIComponent(img.fname)}`
+            );
+
+            viewport.setStack(imageIds, 0).then(() => {
+                setViewportOverlay(
+                    viewport,
+                    `${series[0].pid}\n${series[0].pname}\nSeries: ${series[0].serieskey}\nImage: ${series[0].imagekey}\nStudyDate: ${series[0].studydate}\nStudyTime: ${series[0].studytime}`
+                );
+                viewport.setDisplayArea({
+                    imageArea: [1, 1],
+                    imageCanvasPoint: { imagePoint: [0.5, 0.5], canvasPoint: [0.5, 0.5] },
                 });
-            }, 10);
+                viewport.render();
+            });
 
-            // 초기 overlay 설정
-            const currentImage = data.data[stack.currentIndex];
-            if (currentImage) {
-                setViewportOverlay(viewport, `${currentImage.pid}\n${currentImage.pname}\nSeries: ${currentImage.serieskey}\nImage: ${currentImage.imagekey}\nStudyDate: ${currentImage.studydate}\nStudyTime: ${currentImage.studytime}\n`);
+            const onStackNewImage = () => {
+                const currentIndex = viewport.getCurrentImageIdIndex();
+                const currentImage = series[currentIndex];
+                if (currentImage) {
+                    setViewportOverlay(
+                        viewport,
+                        `${currentImage.pid}\n${currentImage.pname}\nSeries: ${currentImage.serieskey}\nImage: ${currentImage.imagekey}\nStudyDate: ${currentImage.studydate}\nStudyTime: ${currentImage.studytime}`
+                    );
+                }
+            };
+            element.addEventListener(STACK_NEW_IMAGE, onStackNewImage);
+
+            // 모든 뷰포트를 grid 변경 시 업데이트하도록 ResizeObserver를 한 번만 등록
+            if (!element._resizeObserver) {
+                const observer = new ResizeObserver(() => {
+                    Object.entries(elementRefs.current).forEach(([vid, vEl]) => {
+                        const vp = renderingEngineRef.current.getViewport(vid);
+                        if (vp) {
+                            vp.setProperties({ preserveAspectRatio: false });
+                            vp.setDisplayArea({
+                                imageArea: [1, 1],
+                                imageCanvasPoint: { imagePoint: [0.5, 0.5], canvasPoint: [0.5, 0.5] },
+                            });
+                            vp.render();
+                        }
+                    });
+                });
+                observer.observe(element);
+                element._resizeObserver = observer;
             }
 
-            viewport.setDisplayArea({
-                imageArea: [1,1],         // 뷰포트에 맞춰 최대 영역
-                imageCanvasPoint: {       // 이미지 중앙 기준
-                    imagePoint: [0.5,0.5],
-                    canvasPoint: [0.5,0.5]
+            cleanups.push(() => {
+                element.removeEventListener(STACK_NEW_IMAGE, onStackNewImage);
+                if (element._resizeObserver) {
+                    element._resizeObserver.disconnect();
+                    element._resizeObserver = null;
                 }
             });
-            viewport.render();
-
         });
-    }, [cornerstoneReady, stack.imageIds, data]);
 
-    // 4️⃣ stack.currentIndex 변경 시 overlay 갱신
-    useEffect(() => {
-        const viewport = viewportRef.current;
-        if (!viewport || !data) return;
+        return () => cleanups.forEach((fn) => fn());
+    }, [cornerstoneReady, data, grid, studyUid]);
 
-        const currentImage = data.data[stack.currentIndex];
-        if (currentImage) {
-            setViewportOverlay(viewport, `${currentImage.pid}\n${currentImage.pname}\nSeries: ${currentImage.serieskey}\nImage: ${currentImage.imagekey}\nStudyDate: ${currentImage.studydate}\nStudyTime: ${currentImage.studytime}\n`);
-        }
-    }, [stack.currentIndex, data]);
-
-    useEffect(() => {
-        const applyFitImage = () => {
-            const viewport = viewportRef.current;
-            if (!viewport) return;
-            viewport.setDisplayArea({
-                imageArea: [1, 1],
-                imageCanvasPoint: {
-                    imagePoint: [0.5, 0.5],
-                    canvasPoint: [0.5, 0.5],
-                },
-            });
-            viewport.render();
-        };
-
-        window.addEventListener("resize", applyFitImage);
-        applyFitImage(); // ✅ 최초 한 번 실행
-
-        return () => {
-            window.removeEventListener("resize", applyFitImage);
-        };
-    }, []);
 
     return (
         <div className="viewerpage">
             <Header />
             <Sidebar onActivateTool={activateTool} />
-            <div className="viewimage" ref={elementRef} />
+            <div
+                className="viewimage"
+                style={{
+                    display: "grid",
+                    gridTemplateRows: `repeat(${grid.rows}, 1fr)`,
+                    gridTemplateColumns: `repeat(${grid.cols}, 1fr)`,
+                    gap: "2px",
+                    width: "100%",
+                    height: "100%",
+                }}
+            >
+                {Array.from({ length: grid.rows }).map((_, r) =>
+                    Array.from({ length: grid.cols }).map((_, c) => {
+                        const id = `viewport-${r}-${c}`;
+                        return (
+                            <div
+                                key={id}
+                                ref={(el) => {
+                                    if (el) elementRefs.current[id] = el;
+                                }}
+                                style={{ position: "relative", width: "100%", height: "100%" }}
+                            />
+                        );
+                    })
+                )}
+            </div>
         </div>
-
     );
 }
 

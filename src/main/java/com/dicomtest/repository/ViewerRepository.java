@@ -2,6 +2,7 @@ package com.dicomtest.repository;
 
 import com.dicomtest.dto.DicomResponseDto;
 import com.dicomtest.dto.Image;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +12,7 @@ import java.util.List;
 public class ViewerRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    public ViewerRepository(JdbcTemplate jdbcTemplate) {
+    public ViewerRepository(@Qualifier("oracleJdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -53,16 +54,4 @@ public class ViewerRepository {
             );
         });
     }
-
-    /*
-    public String getImagePath(Long studyInstanceUid, Long seriesInstanceUid) {
-        String sql = "SELECT PATH FROM IMAGETAB WHERE STUDYKEY = ? AND SERIESKEY = ?";
-
-        return jdbcTemplate.queryForObject(
-                sql,
-                new Object[]{studyInstanceUid, seriesInstanceUid},
-                String.class
-        );
-    }
-     */
 }

@@ -13,6 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class Study {
     private String pid; // 환자 ID
+    private String pname; // 환자이름
     private String studydesc; // 검사 설명
     private String bodypart; // 부위
     private Long seriescnt; // 시리즈 수

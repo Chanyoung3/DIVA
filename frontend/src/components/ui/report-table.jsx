@@ -13,6 +13,10 @@ export function ReportTable({ columns, data }) {
 
     return (
         <div className="data-table-container">
+            <div className="pid-info">
+                <span className="pidtext">환자 ID : {data[0]?.pid || ""}</span>
+                <span className="pidnametext">환자 이름 : {data[0]?.pname || ""}</span>
+            </div>
             <table className="data-table">
                 <thead>
                 {table.getHeaderGroups().map((headerGroup) => (

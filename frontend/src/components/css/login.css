@@ -1,0 +1,58 @@
+.login-page {
+    width: 100vw;
+    height: 100vh; /* 화면 전체 높이 */
+    background-size: cover; /* 화면 크기에 맞춰 확대 */
+    background-position: center; /* 중앙 정렬 */
+    background-repeat: no-repeat;
+    background-color: #404040;
+    display: flex;
+    justify-content: center; /* 가로 중앙 */
+    align-items: flex-start;     /* 중앙 보다 위쪽 */
+    padding-top: 10%;
+    box-sizing: border-box;
+}
+
+/* 로그인 폼 컨테이너 */
+.login-container {
+    width: 400px;
+    padding: 40px;
+    background-color: rgba(0, 0, 0, 0.6); /* 반투명 배경 */
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    text-align: center;
+    max-height: 90vh;
+    color: white;
+}
+
+.login-title {
+    font-size: 50px;
+    font-weight: bold;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.login-input {
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.login-button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.fullname {
+    font-size: 15px;
+    margin-bottom: 20px;
+}
