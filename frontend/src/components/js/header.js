@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CircleUserRound } from "lucide-react";
+import { Settings } from "lucide-react";
 import { annotation } from "@cornerstonejs/tools";
 import "../css/header.css";
 
@@ -41,12 +41,15 @@ function Header({ setUserid }) {
 
     return (
         <div className="header-container">
-            <div className="headname" onClick={handleMain}>DIVA</div>
+            <div className="head-container" onClick={handleMain}>
+                <div className="headname">DIVA</div>
+                <div className="head-subtitle">Dicom Imaging & Visualization Application</div>
+            </div>
 
             <div className="profile-container">
                 <text className="login-info">{username}</text>
                 <button className="profile-button" onClick={() => setDropdownOpen(prev => !prev)}>
-                    <CircleUserRound />
+                    <Settings />
                 </button>
 
                 {dropdownOpen && (

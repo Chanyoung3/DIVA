@@ -42,42 +42,60 @@ function Sidebar({ onActivateTool }) {
                         onClick={() => { handleClick("Home"); }}
                         title="메인"
                     >
-                        <List />
+                        <div className="icon-label">
+                            <List />
+                            <span className="icon-text">메인</span>
+                        </div>
                     </button>
                     <button
                         className={`button button_lg ${activeTool === "Basic" ? "active" : ""}`}
                         onClick={() => { handleClick("Basic"); }}
                         title="기본"
                     >
-                        <Eye />
+                        <div className="icon-label">
+                            <Eye />
+                            <span className="icon-text">기본</span>
+                        </div>
                     </button>
                     <button
                         className={`button button_lg ${activeTool === "WindowLevel" ? "active" : ""}`}
                         onClick={() => { handleClick("WindowLevel"); }}
                         title="윈도우레벨"
                     >
-                        <Sun />
+                        <div className="icon-label">
+                            <Sun />
+                            <span className="icon-text">윈도우 레벨</span>
+                        </div>
                     </button>
                     <button
                         className={`button button_lg ${activeTool === "Zoom" ? "active" : ""}`}
                         onClick={() => { handleClick("Zoom"); }}
                         title="줌"
                     >
-                        <ZoomIn />
+                        <div className="icon-label">
+                            <ZoomIn />
+                            <span className="icon-text">확대/축소</span>
+                        </div>
                     </button>
                     <button
                         className={`button button_lg ${activeTool === "Move" ? "active" : ""}`}
                         onClick={() =>  { handleClick("Move"); }}
                         title="이동"
                     >
-                        <Move />
+                        <div className="icon-label">
+                            <Move />
+                            <span className="icon-text">이동</span>
+                        </div>
                     </button>
                     <button
                         className={`button button_lg ${activeTool.startsWith("Mark") ? "active" : ""}`}
                         onClick={() => {handleClick("Mark"); setShowMarkTools(true); }}
                         title="주석"
                     >
-                        <Tags />
+                        <div className="icon-label">
+                            <Tags />
+                            <span className="icon-text">주석</span>
+                        </div>
                     </button>
                     {showMarkTools && (
                         <div className="markTools">
@@ -86,58 +104,82 @@ function Sidebar({ onActivateTool }) {
                                 onClick={() => handletoggle("Angle") }
                                 title="각도"
                             >
-                                <DraftingCompass />
+                                <div className="icon-label">
+                                    <DraftingCompass />
+                                    <span className="icon-text">각도</span>
+                                </div>
                             </button>
                             <button
                                 className={`button button_md ${annotationTool === "Length" ? "active" : ""}`}
                                 onClick={() => handletoggle("Length") }
                                 title="길이"
                             >
-                                <Ruler />
+                                <div className="icon-label">
+                                    <Ruler />
+                                    <span className="icon-text">길이</span>
+                                </div>
                             </button>
                             <button
                                 className={`button button_md ${annotationTool === "Probe" ? "active" : ""}`}
                                 onClick={() => handletoggle("Probe") }
                                 title="픽셀 정보"
                             >
-                                <ScanEye />
+                                <div className="icon-label">
+                                    <ScanEye />
+                                    <span className="icon-text">픽셀정보</span>
+                                </div>
                             </button>
                             <button
                                 className={`button button_md ${annotationTool === "RectangleROI" ? "active" : ""}`}
                                 onClick={() => handletoggle("RectangleROI") }
                                 title="사각형"
                             >
-                                <Square />
+                                <div className="icon-label">
+                                    <Square />
+                                    <span className="icon-text">사각형 모양</span>
+                                </div>
                             </button>
                             <button
                                 className={`button button_md ${annotationTool === "EllipticalROI" ? "active" : ""}`}
                                 onClick={() => handletoggle("EllipticalROI") }
                                 title="원형"
                             >
-                                <Circle />
+                                <div className="icon-label">
+                                    <Circle />
+                                    <span className="icon-text">원형 모양</span>
+                                </div>
                             </button>
                             <button
                                 className={`button button_md ${annotationTool === "Eraser" ? "active" : ""}`}
                                 onClick={() => handletoggle("Eraser") }
                                 title="지우개"
                             >
-                                <Eraser />
+                                <div className="icon-label">
+                                    <Eraser />
+                                    <span className="icon-text">지우개</span>
+                                </div>
                             </button>
                             <button
                                 className={`button button_md ${annotationTool === "Label" ? "active" : ""}`}
                                 onClick={() => handletoggle("Label") }
                                 title="텍스트"
                             >
-                                <Type />
+                                <div className="icon-label">
+                                    <Type />
+                                    <span className="icon-text">텍스트</span>
+                                </div>
                             </button>
                         </div>
                     )}
                     <button
                         className={`button button_lg ${activeTool === "Section" ? "active" : ""}`}
                         onClick={() => { handleClick("Section"); setShowSection(!showSection); }}
-                        title="화면구분"
+                        title="Series"
                     >
-                        <LayoutGrid />
+                        <div className="icon-label">
+                            <LayoutGrid />
+                            <span className="icon-text">Series</span>
+                        </div>
                     </button>
                 </div>
 

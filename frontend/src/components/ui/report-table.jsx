@@ -9,6 +9,7 @@ export function ReportTable({ columns, data }) {
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        columnResizeMode: "onChange",
     });
 
     return (
@@ -18,6 +19,11 @@ export function ReportTable({ columns, data }) {
                 <span className="pidnametext">환자 이름 : {data[0]?.pname || ""}</span>
             </div>
             <table className="data-table">
+                <colgroup>
+                    {table.getAllColumns().map((column) => (
+                        <col key={column.id} style={{ width: column.columnDef.size }} />
+                    ))}
+                </colgroup>
                 <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                     <tr key={headerGroup.id}>
@@ -33,8 +39,10 @@ export function ReportTable({ columns, data }) {
                 </thead>
                 <tbody>
                 {table.getRowModel().rows.map((row) => (
-                    <tr key={row.id}
-                        onDoubleClick={() =>  navigate(`/view/${row.original.studykey}`)}>
+                    <tr
+                        key={row.id}
+                        onDoubleClick={() => navigate(`/view/${row.original.studykey}`)}
+                    >
                         {row.getVisibleCells().map((cell) => (
                             <td key={cell.id}>
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}

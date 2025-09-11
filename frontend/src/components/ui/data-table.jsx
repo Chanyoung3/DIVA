@@ -9,6 +9,7 @@ export function DataTable({ columns, data, cnt, onRecordSearch }) {
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        columnResizeMode: "onChange",
     });
 
     return (
@@ -20,6 +21,11 @@ export function DataTable({ columns, data, cnt, onRecordSearch }) {
                 className="table-scroll-wrapper"
             >
                 <table className="data-table">
+                    <colgroup>
+                        {table.getAllColumns().map((column) => (
+                            <col key={column.id} style={{ width: column.columnDef.size }} />
+                        ))}
+                    </colgroup>
                     <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
                         <tr key={headerGroup.id}>
