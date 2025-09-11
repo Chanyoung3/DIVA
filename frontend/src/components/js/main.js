@@ -9,34 +9,42 @@ const columns = [
     {
         accessorKey: "pid",
         header: "환자 ID",
+        size: 200,
     },
     {
         accessorKey: "pname",
         header: "환자 이름",
+        size: 200,
     },
     {
         accessorKey: "studydesc",
         header: "검사 설명",
+        size: 600,
     },
     {
         accessorKey: "bodypart",
         header: "검사 부위",
+        size: 200,
     },
     {
         accessorKey: "seriescnt",
         header: "시리즈 수",
+        size: 100,
     },
     {
         accessorKey: "imagecnt",
         header: "이미지 수",
+        size: 100,
     },
     {
         accessorKey: "modality",
         header: "장비",
+        size: 200,
     },
     {
         accessorKey: "studydate",
         header: "검사 날짜",
+        size: 200,
     },
 ];
 
@@ -44,22 +52,27 @@ const columns2  = [
     {
         accessorKey: "modality",
         header: "검사장비",
+        size: 200,
     },
     {
         accessorKey: "studydesc",
         header: "검사설명",
+        size: 600,
     },
     {
         accessorKey: "studydate",
         header: "검사일시",
+        size: 100,
     },
     {
         accessorKey: "seriescnt",
         header: "시리즈",
+        size: 100,
     },
     {
         accessorKey: "imagecnt",
         header: "이미지",
+        size: 100,
     },
 ];
 
@@ -225,7 +238,7 @@ function Main() {
 
                         <div className="report-section">
                             <div className="title">리포트</div>
-                            <textarea className="report" value={reportText} onChange={(e) => setReportText(e.target.value)}/>
+                            <textarea className="report" placeholder="코멘트를 입력해주세요." value={reportText} onChange={(e) => setReportText(e.target.value)}/>
                             <button className="report-submit" onClick={handleReport}>저장</button>
                         </div>
                     </div>

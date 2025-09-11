@@ -19,29 +19,60 @@
     background-color: #2e2e2e;  /* 연한 배경 */
     border-radius: 12px;        /* 둥근 모서리 */
     padding: 15px;              /* 내부 여백 */
+    margin-bottom: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 .tables {
     display: flex;
     gap: 15px;
-    flex: 1;
+    flex: 1 1 auto;
     padding: 10px;
+    height: calc(100vh - 120px);
+    overflow: hidden;
 }
 
 .data-table-container {
+    display: flex;
+    flex-direction: column; /* 세로로 쌓음 */
+    flex: 2;
     padding: 10px;
-    flex: 2; /* 오른쪽 영역 */
+    border-radius: 12px;
+    background-color: #2e2e2e;
+    min-height: 0;          /* 중요! flex 안에서 overflow auto가 작동하게 */
+}
+
+.table-scroll-wrapper {
+    flex: 1;       /* 남은 공간 차지 */
+    min-height: 0; /* 중요! flex 안에서 overflow auto 적용 */
+    overflow: auto;
 }
 
 .left-panel {
-    padding: 10px;
     display: flex;
     flex-direction: column;
     flex: 1;
+    padding: 10px;
+    min-height: 0;
+}
+
+.data-table-wrapper {
+    flex: 1; /* 남은 높이 차지 */
+    min-height: 0; /* 이게 중요! flex 안에서 overflow auto를 제대로 먹게 함 */
+    overflow: auto;
+}
+
+.report-table-wrapper {
+    flex: 1;        /* 남은 공간 채우기 */
+    min-height: 0;  /* flex 안에서 scroll 작동하도록 */
+    overflow: auto; /* 내용이 많으면 스크롤 */
 }
 
 .option {
     padding: 10px;
+    flex: 0 0 auto;
+    overflow: hidden;
 }
 
 .title {
@@ -68,11 +99,28 @@
 }
 
 .report {
-    width: 100%;
+    width: 96%;
     height: 300px;
     border-radius: 10px;
     background-color: #f3f4f6;
     resize: none;
+    padding: 12px 16px;            /* 안쪽 여백 */
+    font-size: 14px;               /* 글자 크기 */
+    line-height: 1.5;              /* 줄 간격 */
+    font-family: 'Arial', sans-serif; /* 글씨체 */
+    color: #333;                   /* 글자색 */
+    border: 1px solid #ccc;        /* 테두리 */
+    outline: none;                 /* 포커스시 기본 테두리 제거 */
+}
+
+.report:focus {
+    border-color: #557531;         /* 포커스시 테두리 색상 */
+    box-shadow: 0 0 6px rgba(85, 117, 49, 0.3); /* 약간 그림자 */
+}
+
+.report::placeholder {
+    color: #aaa;                   /* placeholder 색상 */
+    font-style: italic;            /* 기울임꼴 */
 }
 
 .report-submit {
@@ -88,6 +136,7 @@
 .data-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: auto;
 }
 
 .data-table thead {
@@ -201,4 +250,3 @@
 .search-box button:hover {
     background-color: #6b7b43;
 }
-

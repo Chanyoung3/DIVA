@@ -45,9 +45,16 @@ public class MysqlConfig {
     @Bean
     public CommandLineRunner initData(@Qualifier("mysqlJdbcTemplate") JdbcTemplate jdbcTemplate) {
         return args -> {
-            jdbcTemplate.execute(
-                    "INSERT INTO `user` (id, userid, password, username, drank) VALUES (1, 'admin', '1', '관리자', 'admin');"
-            );
+            Integer adminCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM `user` WHERE userid = 'admin'", Integer.class);
+            if (adminCount == 0) {
+                jdbcTemplate.execute("INSERT INTO `user` (userid, password, username, drank) VALUES ('admin', '1', '관리자', 'admin');");
+            }
+
+            Integer chanCount = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM `user` WHERE userid = '33chan'", Integer.class);
+            if (chanCount == 0) {
+                jdbcTemplate.execute("INSERT INTO `user` (userid, password, username, drank) VALUES ('33chan', '1', '나찬영', 'doctor');");
+            }
         };
     }
+
 }
