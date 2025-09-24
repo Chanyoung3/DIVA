@@ -83,19 +83,3 @@ DIVA는 웹 기반의 **DICOM (Digital Imaging and Communications in Medicine)**
   DICOM 이미지 확인 및 분석 도구 사용 화면  
 
 <img width="1219" height="626" alt="Viewer Page" src="https://github.com/user-attachments/assets/a4175fb2-e418-4434-b730-a541f8fc86aa" />
-
----
-
-## 🚀 설치 및 실행 방법
-
-### 1. 저장소 클론
-```bash
-git clone https://github.com/username/diva.git
-cd diva
-```
-### 2. 프론트앤드 설치 및 실행
-```bash
-cd frontend
-npm install
-npm start
-```
